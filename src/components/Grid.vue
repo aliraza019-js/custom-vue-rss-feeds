@@ -7,8 +7,8 @@
           :href="post.link"
           @click="showPost($event, post.link)"
           target="_blank"
-          :style="'background-image: url(' + post.thumbnail + ');'"
-          :class="{'post-image' : post.thumbnail, 'no-image' : !post.thumbnail}"
+          :style="'background-image: url(' + (post.thumbnail || getThumbnailFromContent(post.content)) + ');'"
+          :class="{'post-image' : getThumbnailFromContent(post.content), 'no-image' : !getThumbnailFromContent(post.content)}"
         ></a>
       </div>
       <div>
@@ -56,6 +56,9 @@ export default {
     ]),
     ...mapGetters(["getCurrentPost"])
   },
+  mounted(){
+    console.log('posts', this.posts)
+  },
   filters: {
     formatPostDate: function(value) {
       if (value) {
@@ -67,6 +70,11 @@ export default {
   methods: {
     formatPostDescription: value => {
       return value.replace(/<img[^>]*>/g, "");
+    },
+    getThumbnailFromContent(content) {
+      const regex = /<img[^>]*src="([^"]*)"/g;
+      const match = regex.exec(content);
+      return match ? match[1] : ''; // Return the first matched image URL
     },
     showPost(event, link) {
       if (this.postStyle === "external") {
